@@ -1,0 +1,7 @@
+include AUTHORS
+include LICENSE.txt
+include README.md
+include setup.py
+recursive-include shop_wspay *.py
+recursive-include shop_wspay/templates *
+recursive-exclude * *.pyc
