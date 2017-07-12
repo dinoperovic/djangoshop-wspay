@@ -35,11 +35,11 @@ class WSPayForm(forms.Form):
         def js_fields_generator():
             for name in self.fields:
                 yield """
-                    var field = document.createElement('input');
-                    field.setAttribute('type', 'hidden');
-                    field.setAttribute('name', '{name}');
-                    field.setAttribute('value', '{value}');
-                    form.appendChild(field);""".format(name=name, value=self[name].value())
+                    var {name} = document.createElement('input');
+                    {name}.setAttribute('type', 'hidden');
+                    {name}.setAttribute('name', '{name}');
+                    {name}.setAttribute('value', '{value}');
+                    form.appendChild({name});""".format(name=name, value=self[name].value())
         js_fields = ''.join([x for x in js_fields_generator()])
         js_expression = """
             (function () {{

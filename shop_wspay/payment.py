@@ -80,7 +80,7 @@ class WSPayPayment(PaymentProvider):
 
         name_bits = cart.billing_address.name.split(' ')
         first_name = name_bits[0]
-        last_name = name_bits[1:] if len(name_bits) > 1 else ''
+        last_name = ' '.join(name_bits[1:]) if len(name_bits) > 1 else ''
 
         data = {
             'ShopID': sws.SHOP_ID,
