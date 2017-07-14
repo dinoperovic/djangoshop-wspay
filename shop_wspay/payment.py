@@ -175,7 +175,7 @@ class WSPayPayment(PaymentProvider):
         # If everything is good up to this point, a cart has been paid for.
         # Create an Order.
         order = OrderModel.objects.create_from_cart(cart, request)
-        amount_paid = data['Amount'].replace(',', '.')  # Replace comma with dot as a decimal separator.
+        amount_paid = request.GET['Amount'].replace(',', '.')  # Replace comma with dot as a decimal separator.
         order.add_wspay_payment(data['ApprovalCode'], amount_paid)
         order.extra['transaction_id'] = data['ApprovalCode']
         order.save()
