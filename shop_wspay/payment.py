@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import hashlib
 import logging
+from distutils.version import LooseVersion
 
 from django.conf.urls import url
 from django.contrib import messages
@@ -14,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django_fsm import transition
+from shop import __version__ as SHOP_VERSION
 from shop.models.address import ISO_3166_CODES
 from shop.models.cart import CartModel
 from shop.models.order import OrderModel, OrderPayment
@@ -175,6 +177,12 @@ class WSPayPayment(PaymentProvider):
         # If everything is good up to this point, a cart has been paid for.
         # Create an Order.
         order = OrderModel.objects.create_from_cart(cart, request)
+
+        # Handle API change in djangoSHOP v0.11 that requires an additional
+        # method call to populate cart items.
+        if LooseVersion(SHOP_VERSION) >= LooseVersion('0.11'):
+            order.populate_from_cart(cart, request)
+
         amount_paid = request.GET['Amount'].replace(',', '.')  # Replace comma with dot as a decimal separator.
         order.add_wspay_payment(data['ApprovalCode'], amount_paid)
         order.extra['transaction_id'] = data['ApprovalCode']
