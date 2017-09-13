@@ -240,10 +240,13 @@ class WSPayWorkflowMixin(object):
         """
         Adds a payment object to the order for the given GestPay handler.
         """
-        payment = OrderPayment(order=self, transaction_id=transaction_id, payment_method=WSPayPayment.namespace)
-        assert payment.amount.currency == 'HRK', "Currency need's to be in HRK"
-        payment.amount = payment.amount.__class__(amount)
-        payment.save()
+        assert self.currency == 'HRK', "Currency need's to be in HRK"
+        OrderPayment.objects.create(
+            order=self,
+            amount=amount,
+            transaction_id=transaction_id,
+            payment_method=WSPayPayment.namespace,
+        )
 
     @transition(
         field='status', source='paid_with_wspay', conditions=[is_fully_paid],
