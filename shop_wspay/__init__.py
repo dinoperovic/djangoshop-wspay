@@ -14,4 +14,4 @@ Release logic:
  9. twine upload dist/djangoshop-wspay-<version>.tar.gz
 10. Done!
 """
-__version__ = '0.1.0'
+__version__ = '0.1.1'
