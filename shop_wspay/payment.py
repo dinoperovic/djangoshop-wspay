@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 import hashlib
 import logging
@@ -20,8 +20,8 @@ from shop.models.address import ISO_3166_CODES
 from shop.models.cart import CartModel
 from shop.models.order import OrderModel, OrderPayment
 from shop.payment.base import PaymentProvider
-from shop_wspay import settings as sws
 from shop_wspay.forms import WSPayForm
+from shop_wspay.conf import app_settings
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class WSPayPayment(PaymentProvider):
         """
         Redirect to `payment_view` or directly post to GestPay.
         """
-        if sws.PAYMENT_VIEW:
+        if app_settings.PAYMENT_VIEW:
             return 'window.location.href="%s";' % reverse('shop:%s:payment' % self.namespace)
 
         try:
@@ -49,7 +49,7 @@ class WSPayPayment(PaymentProvider):
             assert cart.extra.get('payment_modifier') == self.namespace
             assert cart.total > 0
         except AssertionError:
-            return redirect(sws.CART_URL)
+            return redirect(app_settings.CART_URL)
 
         form = WSPayPayment.get_form(cart, request)
         return form.get_js_expression()
@@ -71,8 +71,8 @@ class WSPayPayment(PaymentProvider):
         total_amount = ','.join(total_amount)  # Add a comma as a decimal separator.
 
         signature_str = '{shop_id}{secret_key}{shopping_cart_id}{secret_key}{total_amount}{secret_key}'.format(
-            shop_id=sws.SHOP_ID,
-            secret_key=sws.SECRET_KEY,
+            shop_id=app_settings.SHOP_ID,
+            secret_key=app_settings.SECRET_KEY,
             shopping_cart_id=cart_id,
             total_amount=signature_total_amount,
         )
@@ -85,7 +85,7 @@ class WSPayPayment(PaymentProvider):
         last_name = ' '.join(name_bits[1:]) if len(name_bits) > 1 else ''
 
         data = {
-            'ShopID': sws.SHOP_ID,
+            'ShopID': app_settings.SHOP_ID,
             'ShoppingCartID': cart_id,
             'TotalAmount': total_amount,
             'Signature': signature,
@@ -114,13 +114,13 @@ class WSPayPayment(PaymentProvider):
         before completing the purchase.
         """
         try:
-            assert sws.PAYMENT_VIEW is True
+            assert app_settings.PAYMENT_VIEW is True
             cart = CartModel.objects.get_from_request(request)
             cart.update(request)
             assert cart.extra.get('payment_modifier') == cls.namespace
             assert cart.total > 0
         except (CartModel.DoesNotExist, AssertionError):
-            return redirect(sws.CART_URL)
+            return redirect(app_settings.CART_URL)
 
         form = cls.get_form(cart, request)
         return render(request, 'shop_wspay/payment.html', {'form': form, 'cart': cart})
@@ -142,7 +142,7 @@ class WSPayPayment(PaymentProvider):
                 'Signature': request.GET['Signature'],
             }
         except (KeyError, ValueError):
-            return redirect(sws.CART_URL)
+            return redirect(app_settings.CART_URL)
 
         try:
             cart = CartModel.objects.get(id=data['ShoppingCartID'])
@@ -159,8 +159,8 @@ class WSPayPayment(PaymentProvider):
 
         signature_str = '{shop_id}{secret_key}{shopping_cart_id}{secret_key}{success}{secret_key}{approval_code}{secret_key}'  # noqa
         signature_str = signature_str.format(
-            shop_id=sws.SHOP_ID,
-            secret_key=sws.SECRET_KEY,
+            shop_id=app_settings.SHOP_ID,
+            secret_key=app_settings.SECRET_KEY,
             shopping_cart_id=data['ShoppingCartID'],
             success=data['Success'],
             approval_code=data['ApprovalCode'],
@@ -189,10 +189,10 @@ class WSPayPayment(PaymentProvider):
         order.save()
         cart.delete()
 
-        if sws.SUCCESS_MESSAGE:
-            messages.success(request, sws.SUCCESS_MESSAGE)
-        if sws.THANK_YOU_URL:
-            return redirect(sws.THANK_YOU_URL)
+        if app_settings.SUCCESS_MESSAGE:
+            messages.success(request, app_settings.SUCCESS_MESSAGE)
+        if app_settings.THANK_YOU_URL:
+            return redirect(app_settings.THANK_YOU_URL)
         return HttpResponseRedirect(OrderModel.objects.get_latest_url())
 
     @classmethod
@@ -205,8 +205,8 @@ class WSPayPayment(PaymentProvider):
         cart = CartModel.objects.get_from_request(request)
         cart.empty()
 
-        if sws.ERROR_MESSAGE:
-            messages.error(request, sws.ERROR_MESSAGE)
+        if app_settings.ERROR_MESSAGE:
+            messages.error(request, app_settings.ERROR_MESSAGE)
         return render(request, 'shop_wspay/error.html')
 
     @classmethod
@@ -219,8 +219,8 @@ class WSPayPayment(PaymentProvider):
         cart = CartModel.objects.get_from_request(request)
         cart.empty()
 
-        if sws.CANCEL_MESSAGE:
-            messages.error(request, sws.CANCEL_MESSAGE)
+        if app_settings.CANCEL_MESSAGE:
+            messages.error(request, app_settings.CANCEL_MESSAGE)
         return render(request, 'shop_wspay/cancel.html')
 
 

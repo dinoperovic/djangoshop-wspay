@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from decimal import Decimal
 
 from django.utils.translation import ugettext_lazy as _
 from shop.modifiers.base import PaymentModifier
 from shop_wspay.payment import WSPayPayment
-from shop_wspay.settings import COMMISION_PERCENTAGE, MODIFIER_CHOICE_TEXT
+from shop_wspay.conf import app_settings
 
 try:
     from shop.serializers.cart import ExtraCartRow
@@ -18,10 +18,10 @@ except ImportError:
 class WSPayPaymentModifier(PaymentModifier):
     identifier = WSPayPayment.namespace
     payment_provider = WSPayPayment()
-    commision_percentage = COMMISION_PERCENTAGE
+    commision_percentage = app_settings.COMMISION_PERCENTAGE
 
     def get_choice(self):
-        return (self.identifier, MODIFIER_CHOICE_TEXT)
+        return (self.identifier, app_settings.MODIFIER_CHOICE_TEXT)
 
     def is_disabled(self, cart):
         return cart.total == 0

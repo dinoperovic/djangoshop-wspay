@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, unicode_literals
 
 from django import forms
-from shop_wspay.settings import FORM_URL
+from shop_wspay.conf import app_settings
 
 
 class WSPayForm(forms.Form):
@@ -29,7 +29,7 @@ class WSPayForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(WSPayForm, self).__init__(*args, **kwargs)
-        self.action = FORM_URL
+        self.action = app_settings.FORM_URL
 
     def get_js_expression(self):
         def js_fields_generator():
