@@ -76,7 +76,7 @@ class DefaultSettings(object):
         """
         Text displayed as a choice for selecting GestPay payment.
         """
-        return self._settting('SHOP_WSPAY_MODIFIER_CHOICE_TEXT', 'Wspay')
+        return self._setting('SHOP_WSPAY_MODIFIER_CHOICE_TEXT', 'Wspay')
 
     @property
     def SHOP_WSPAY_ERROR_MESSAGE(self):
