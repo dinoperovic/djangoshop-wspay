@@ -39,7 +39,7 @@ class WSPayPayment(PaymentProvider):
 
     def get_payment_request(self, cart, request):
         """
-        Redirect to `payment_view` or directly post to GestPay.
+        Redirect to `payment_view` or directly post to WSPay.
         """
         if app_settings.PAYMENT_VIEW:
             return 'window.location.href="%s";' % reverse('shop:%s:payment' % self.namespace)
@@ -238,7 +238,7 @@ class WSPayWorkflowMixin(object):
     @transition(field='status', source=['created'], target='paid_with_wspay', custom=dict(admin=False))
     def add_wspay_payment(self, transaction_id, amount):
         """
-        Adds a payment object to the order for the given GestPay handler.
+        Adds a payment object to the order for the given WSPay handler.
         """
         assert self.currency == 'HRK', "Currency need's to be in HRK"
         OrderPayment.objects.create(
